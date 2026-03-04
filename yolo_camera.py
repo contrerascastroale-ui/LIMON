@@ -19,10 +19,10 @@ def get_save_dir(base_dir="runs/detect", prefix="predict"):
             return save_path
         i += 1
 
-def stream_yolo(show_fps=True, width=640, height=480):
+def stream_yolo(show_fps=True, imgsz=640):
     """
     Inicia un stream de video usando la cámara 0 con la optimización de DirectShow
-    y respeta el sistema de guardado original de YOLO.
+    y unifica la resolución de la cámara con la de la IA (imgsz).
     """
     print("[INFO] Cargando modelo...")
     model = YOLO("yolo26n.pt")
@@ -30,9 +30,10 @@ def stream_yolo(show_fps=True, width=640, height=480):
     print("[INFO] Iniciando cámara (DirectShow)...")
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-    # Definir resolución
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    # Definir resolución de cámara igual a imgsz
+    # Nota: imgsz suele ser un valor único (ej. 640), se asume 4:3 o la cámara ajustará al más cercano
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, imgsz)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, imgsz)
 
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
@@ -89,7 +90,8 @@ def stream_yolo(show_fps=True, width=640, height=480):
             
             total_frames_processed += 1
             
-            results = model.predict(frame, verbose=False)
+            # Predict con el parámetro imgsz solicitado
+            results = model.predict(frame, verbose=False, imgsz=imgsz)
             annotated_frame = results[0].plot()
             
             # Dibujar los FPS sobre la imagen solo si se solicita
@@ -143,7 +145,8 @@ def stream_yolo(show_fps=True, width=640, height=480):
 
 if __name__ == "__main__":
     try:
-        # Aquí puedes cambiar la resolución, por ejemplo: width=1920, height=1080
-        stream_yolo(show_fps=True, width=640, height=480)
+        # imgsz define tanto la resolución de la cámara como la de la IA
+        # Valores recomendados: 320, 640, 1280
+        stream_yolo(show_fps=True, imgsz=640)
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema: {e}")
