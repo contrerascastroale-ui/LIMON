@@ -45,3 +45,66 @@
 [INFO] Promedio de procesamiento: 15.19 FPS
 [INFO] FPS Máximo: 15.84
 [INFO] FPS Mínimo: 12.41
+
+----------------------------------------------------------------------------
+GPU
+
+/neils/OneDrive/Documents/LIMON/yolo_camera_gpu.py
+[INFO] Comprobando disponibilidad de GPU (CUDA)...
+[INFO] GPU detectada: NVIDIA GeForce GTX 1650
+[INFO] Cargando modelo...
+[INFO] Modelo YOLO cargado en la GPU exitosamente.
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 1280x720
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Iniciando hilo de captura independiente...
+[INFO] Video guardado en: runs/detect\predict\0.avi
+[INFO] Promedio de procesamiento: 25.75 FPS
+[INFO] FPS Máximo: 33.49
+[INFO] FPS Mínimo: 17.19
+
+---------------------------------------------
+
+PS C:\Users\neils\OneDrive\Documents\LIMON> & C:/Users/neils/miniconda3/envs/limon/python.exe c:/Users/neils/OneDrive/Documents/LIMON/yolo_camera_gpu.py
+[INFO] Comprobando disponibilidad de GPU (CUDA)...
+[INFO] GPU detectada: NVIDIA GeForce GTX 1650
+[INFO] Cargando modelo...
+[INFO] Modelo YOLO cargado en la GPU exitosamente.
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 640x480
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Iniciando hilo de captura independiente...
+[INFO] Video guardado en: runs/detect\predict\0.avi
+[INFO] Promedio de procesamiento: 45.51 FPS
+[INFO] FPS Máximo: 71.72
+[INFO] FPS Mínimo: 24.28
+
+---------------------------------------------------------
+
+[INFO] Comprobando disponibilidad de GPU (CUDA)...
+[INFO] GPU detectada: NVIDIA GeForce GTX 1650
+[INFO] Cargando modelo...
+[INFO] Modelo YOLO cargado en la GPU exitosamente.
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 352x288
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Iniciando hilo de captura independiente...
+[INFO] Video guardado en: runs/detect\predict\0.avi
+[INFO] Promedio de procesamiento: 44.11 FPS
+[INFO] FPS Máximo: 80.18
+[INFO] FPS Mínimo: 24.49
