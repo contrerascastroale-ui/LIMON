@@ -39,7 +39,7 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
         print("[INFO] Modelo YOLO cargado en la GPU exitosamente.")
 
     print("[INFO] Iniciando cámara (DirectShow)...")
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
     # Definir resolución de cámara igual a imgsz
     # Nota: imgsz suele ser un valor único (ej. 640), se asume 4:3 o la cámara ajustará al más cercano
@@ -159,6 +159,6 @@ if __name__ == "__main__":
     try:
         # imgsz define tanto la resolución de la cámara como la de la IA
         # Valores recomendados: 320, 640, 1280
-        stream_yolo_gpu(show_fps=True, imgsz=1280)
+        stream_yolo_gpu(show_fps=True, imgsz=640)
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema: {e}")
