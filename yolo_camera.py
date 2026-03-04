@@ -19,7 +19,7 @@ def get_save_dir(base_dir="runs/detect", prefix="predict"):
             return save_path
         i += 1
 
-def stream_yolo():
+def stream_yolo(show_fps=True):
     """
     Inicia un stream de video usando la cámara 0 con la optimización de DirectShow
     y respeta el sistema de guardado original de YOLO.
@@ -55,7 +55,9 @@ def stream_yolo():
     out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
 
     frames_written = 0
+    total_frames_processed = 0
     start_time = None
+    prev_frame_time = 0
 
     try:
         while True:
@@ -63,8 +65,22 @@ def stream_yolo():
             if not ret:
                 break
             
+            # Cálculo de FPS de la vista previa
+            current_time = time.time()
+            render_fps = 0
+            if prev_frame_time != 0:
+                render_fps = 1 / (current_time - prev_frame_time)
+            prev_frame_time = current_time
+            
+            total_frames_processed += 1
+            
             results = model.predict(frame, verbose=False)
             annotated_frame = results[0].plot()
+            
+            # Dibujar los FPS sobre la imagen solo si se solicita
+            if show_fps:
+                cv2.putText(annotated_frame, f"FPS: {render_fps:.1f}", (20, 50), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             
             # Inicializamos el contador de tiempo DESPUÉS de analizar el primer frame
             # para que el warmup de YOLO no afecte la sincronización inicial.
@@ -95,6 +111,14 @@ def stream_yolo():
         print("\n[INFO] Detención por terminal detectada.")
     finally:
         print(f"[INFO] Video guardado en: {video_path}")
+        
+        # Calcular el promedio de FPS final
+        if start_time is not None:
+            total_elapsed = time.time() - start_time
+            if total_elapsed > 0:
+                avg_fps = total_frames_processed / total_elapsed
+                print(f"[INFO] Promedio de procesamiento: {avg_fps:.2f} FPS")
+                
         cap.release()
         out.release()
         cv2.destroyAllWindows()
