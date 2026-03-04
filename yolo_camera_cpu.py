@@ -1,7 +1,33 @@
 import os
 import cv2
 import time
+import threading
 from ultralytics import YOLO
+
+class ThreadedCamera:
+    """
+    Clase para optimizar la lectura de la cámara aislando el proceso
+    cap.read() en un hilo secundario y evitar cuellos de botella con la IA.
+    """
+    def __init__(self, cap):
+        self.cap = cap
+        self.ret, self.frame = self.cap.read()
+        self.stopped = False
+        # Iniciar hilo en segundo plano (daemon=True)
+        threading.Thread(target=self.update, daemon=True).start()
+
+    def update(self):
+        # Mantiene actualizado 'self.frame' continuamente
+        while not self.stopped:
+            self.ret, self.frame = self.cap.read()
+
+    def read(self):
+        return self.ret, self.frame
+
+    def release(self):
+        self.stopped = True
+        time.sleep(0.1) # Pequeña pausa para que el hilo termine amigablemente
+        self.cap.release()
 
 def get_save_dir(base_dir="runs/detect", prefix="predict"):
     """
@@ -62,6 +88,9 @@ def stream_yolo(show_fps=True, imgsz=640):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(video_path, fourcc, fps, (real_width, real_height))
 
+    print("[INFO] Iniciando hilo de captura independiente...")
+    threaded_cap = ThreadedCamera(cap)
+
     frames_written = 0
     total_frames_processed = 0
     start_time = None
@@ -71,9 +100,10 @@ def stream_yolo(show_fps=True, imgsz=640):
 
     try:
         while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
+            # Tomamos instantáneamente el último frame del hilo de la cámara
+            ret, frame = threaded_cap.read()
+            if not ret or frame is None:
+                continue
             
             # Cálculo de FPS de la vista previa
             current_time = time.time()
@@ -139,7 +169,7 @@ def stream_yolo(show_fps=True, imgsz=640):
                 if min_fps != float('inf'):
                     print(f"[INFO] FPS Mínimo: {min_fps:.2f}")
                 
-        cap.release()
+        threaded_cap.release()
         out.release()
         cv2.destroyAllWindows()
 
@@ -147,6 +177,6 @@ if __name__ == "__main__":
     try:
         # imgsz define tanto la resolución de la cámara como la de la IA
         # Valores recomendados: 320, 640, 1280
-        stream_yolo(show_fps=True, imgsz=1280)
+        stream_yolo(show_fps=True, imgsz=640)
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema: {e}")
