@@ -58,6 +58,8 @@ def stream_yolo(show_fps=True):
     total_frames_processed = 0
     start_time = None
     prev_frame_time = 0
+    max_fps = 0
+    min_fps = float('inf')
 
     try:
         while True:
@@ -70,6 +72,12 @@ def stream_yolo(show_fps=True):
             render_fps = 0
             if prev_frame_time != 0:
                 render_fps = 1 / (current_time - prev_frame_time)
+                
+                # Solo tomamos máximos y mínimos después de 5 segundos de grabación
+                # para evitar el sesgo del inicio (inicialización de cámara/modelo)
+                if start_time is not None and (current_time - start_time) > 5:
+                    if render_fps > max_fps: max_fps = render_fps
+                    if render_fps < min_fps: min_fps = render_fps
             prev_frame_time = current_time
             
             total_frames_processed += 1
@@ -118,6 +126,9 @@ def stream_yolo(show_fps=True):
             if total_elapsed > 0:
                 avg_fps = total_frames_processed / total_elapsed
                 print(f"[INFO] Promedio de procesamiento: {avg_fps:.2f} FPS")
+                print(f"[INFO] FPS Máximo: {max_fps:.2f}")
+                if min_fps != float('inf'):
+                    print(f"[INFO] FPS Mínimo: {min_fps:.2f}")
                 
         cap.release()
         out.release()
