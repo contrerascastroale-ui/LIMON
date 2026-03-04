@@ -1,0 +1,47 @@
+[INFO] Cargando modelo...
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 1280x720
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Video guardado en: runs/detect\predict\0.avi
+[INFO] Promedio de procesamiento: 5.15 FPS
+[INFO] FPS Máximo: 5.92
+[INFO] FPS Mínimo: 3.79
+
+
+----------------------------------
+
+[INFO] Cargando modelo...
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 640x480
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Video guardado en: runs/detect\predict\0.avi
+[INFO] Promedio de procesamiento: 13.84 FPS
+[INFO] FPS Máximo: 15.91
+[INFO] FPS Mínimo: 10.26
+
+----------------------------------
+
+
+[INFO] Cargando modelo...
+[INFO] Iniciando cámara (DirectShow)...
+[INFO] Resolución activa: 352x288
+
+--- CONFIGURACIÓN ---
+1. Se abrirá la ventana de video de inmediato.
+2. El video se guardará en 'runs/detect\predict3\0.avi'.
+3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.
+
+[INFO] Video guardado en: runs/detect\predict3\0.avi
+[INFO] Promedio de procesamiento: 15.19 FPS
+[INFO] FPS Máximo: 15.84
+[INFO] FPS Mínimo: 12.41
