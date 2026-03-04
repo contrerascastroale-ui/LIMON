@@ -1,5 +1,6 @@
 import os
 import cv2
+import time
 from ultralytics import YOLO
 
 def get_save_dir(base_dir="runs/detect", prefix="predict"):
@@ -53,6 +54,9 @@ def stream_yolo():
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
 
+    frames_written = 0
+    start_time = None
+
     try:
         while True:
             ret, frame = cap.read()
@@ -62,8 +66,27 @@ def stream_yolo():
             results = model.predict(frame, verbose=False)
             annotated_frame = results[0].plot()
             
+            # Inicializamos el contador de tiempo DESPUÉS de analizar el primer frame
+            # para que el warmup de YOLO no afecte la sincronización inicial.
+            if start_time is None:
+                start_time = time.time()
+                
             cv2.imshow("YOLO Preview", annotated_frame)
-            out.write(annotated_frame)
+            
+            # Sincronización de velocidad de video
+            # Rellenamos los frames consumidos por el tiempo de procesamiento de YOLO
+            # para que el video resultante se reproduzca a velocidad normal.
+            elapsed = time.time() - start_time
+            expected_frames = int(elapsed * fps)
+            frames_to_write = expected_frames - frames_written
+            
+            # Siempre escribimos el frame actual por lo menos 1 vez
+            if frames_to_write < 1:
+                frames_to_write = 1
+                
+            for _ in range(frames_to_write):
+                out.write(annotated_frame)
+                frames_written += 1
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
