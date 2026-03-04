@@ -1,0 +1,1 @@
+python versión = 3.13.11
