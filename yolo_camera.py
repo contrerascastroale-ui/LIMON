@@ -19,7 +19,7 @@ def get_save_dir(base_dir="runs/detect", prefix="predict"):
             return save_path
         i += 1
 
-def stream_yolo(show_fps=True):
+def stream_yolo(show_fps=True, width=640, height=480):
     """
     Inicia un stream de video usando la cámara 0 con la optimización de DirectShow
     y respeta el sistema de guardado original de YOLO.
@@ -30,9 +30,18 @@ def stream_yolo(show_fps=True):
     print("[INFO] Iniciando cámara (DirectShow)...")
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
+    # Definir resolución
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
         return
+
+    # Leer resolución real (la cámara podría no soportar la solicitada y asignar la más cercana)
+    real_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    real_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    print(f"[INFO] Resolución activa: {real_width}x{real_height}")
 
     # Obtener el path original de guardado (predict, predict2...)
     save_dir = get_save_dir()
@@ -43,16 +52,14 @@ def stream_yolo(show_fps=True):
     print(f"2. El video se guardará en '{video_path}'.")
     print("3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.\n")
 
-    # Configuración del VideoWriter
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # Configuración del VideoWriter usando la resolución real
     fps = cap.get(cv2.CAP_PROP_FPS)
     if fps <= 0:
         fps = 30.0
 
     # Usar XVID para .avi (original) o mp4v para .mp4
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(video_path, fourcc, fps, (width, height))
+    out = cv2.VideoWriter(video_path, fourcc, fps, (real_width, real_height))
 
     frames_written = 0
     total_frames_processed = 0
@@ -136,6 +143,7 @@ def stream_yolo(show_fps=True):
 
 if __name__ == "__main__":
     try:
-        stream_yolo()
+        # Aquí puedes cambiar la resolución, por ejemplo: width=1920, height=1080
+        stream_yolo(show_fps=True, width=640, height=480)
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema: {e}")
