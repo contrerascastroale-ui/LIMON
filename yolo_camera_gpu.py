@@ -104,7 +104,9 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
 
     frames_written = 0
     total_frames_processed = 0
+    stable_frames_processed = 0
     start_time = None
+    stable_start_time = None
     prev_frame_time = 0
     max_fps = 0
     min_fps = float('inf')
@@ -121,10 +123,13 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
             render_fps = 0
             if prev_frame_time != 0:
                 render_fps = 1 / (current_time - prev_frame_time)
-                
-                # Solo tomamos máximos y mínimos después de 5 segundos de grabación
+                # Solo tomamos máximos, mínimos y promedios después de 5 segundos de grabación
                 # para evitar el sesgo del inicio (inicialización de cámara/modelo)
                 if start_time is not None and (current_time - start_time) > 5:
+                    if stable_start_time is None:
+                        stable_start_time = current_time
+                    stable_frames_processed += 1
+                    
                     if render_fps > max_fps: max_fps = render_fps
                     if render_fps < min_fps: min_fps = render_fps
             prev_frame_time = current_time
@@ -171,15 +176,21 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
     finally:
         print(f"[INFO] Video guardado en: {video_path}")
         
-        # Calcular el promedio de FPS final
-        if start_time is not None:
+        # Calcular el promedio de FPS final excluyendo los primeros 5 segundos
+        if stable_start_time is not None:
+            total_stable_elapsed = time.time() - stable_start_time
+            if total_stable_elapsed > 0:
+                avg_fps = stable_frames_processed / total_stable_elapsed
+                print(f"[INFO] Promedio de procesamiento (estable tras 5s): {avg_fps:.2f} FPS")
+                print(f"[INFO] FPS Máximo (tras 5s): {max_fps:.2f}")
+                if min_fps != float('inf'):
+                    print(f"[INFO] FPS Mínimo (tras 5s): {min_fps:.2f}")
+        elif start_time is not None:
+            # Fallback por si la grabación se cancela antes de los 5 segundos
             total_elapsed = time.time() - start_time
             if total_elapsed > 0:
                 avg_fps = total_frames_processed / total_elapsed
-                print(f"[INFO] Promedio de procesamiento: {avg_fps:.2f} FPS")
-                print(f"[INFO] FPS Máximo: {max_fps:.2f}")
-                if min_fps != float('inf'):
-                    print(f"[INFO] FPS Mínimo: {min_fps:.2f}")
+                print(f"[INFO] Promedio de procesamiento (video corto): {avg_fps:.2f} FPS")
                 
         threaded_cap.release()
         out.release()
