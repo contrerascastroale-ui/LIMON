@@ -76,7 +76,7 @@ def stream_yolo_gpu(imgsz=640):
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     # Establecer enfoque manual (El valor depende de la cámara, puede requerir ajuste)
     # Valores comunes suelen estar entre 0 (infinito o macro) y 255.
-    cap.set(cv2.CAP_PROP_FOCUS, 0)
+    cap.set(cv2.CAP_PROP_FOCUS, 25)
 
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
