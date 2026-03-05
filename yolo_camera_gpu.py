@@ -46,7 +46,7 @@ def get_save_dir(base_dir="runs/detect", prefix="predict"):
             return save_path
         i += 1
 
-def stream_yolo_gpu(show_fps=True, imgsz=640):
+def stream_yolo_gpu(imgsz=640):
     """
     Inicia un stream de video usando la cámara 0 con la optimización de DirectShow
     y unifica la resolución de la cámara con la de la IA (imgsz), forzando ejecución en GPU.
@@ -65,12 +65,18 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
         print("[INFO] Modelo YOLO cargado en la GPU exitosamente.")
 
     print("[INFO] Iniciando cámara (DirectShow)...")
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     # Definir resolución de cámara igual a imgsz
     # Nota: imgsz suele ser un valor único (ej. 640), se asume 4:3 o la cámara ajustará al más cercano
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, imgsz)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, imgsz)
+
+    # Desactivar autoenfoque (0 = Apagado, 1 = Encendido)
+    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    # Establecer enfoque manual (El valor depende de la cámara, puede requerir ajuste)
+    # Valores comunes suelen estar entre 0 (infinito o macro) y 255.
+    cap.set(cv2.CAP_PROP_FOCUS, 0)
 
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
@@ -139,12 +145,7 @@ def stream_yolo_gpu(show_fps=True, imgsz=640):
             # Predict con el parámetro imgsz solicitado, forzando GPU si está disponible
             device_opt = 0 if torch.cuda.is_available() else 'cpu'
             results = model.predict(frame, verbose=False, imgsz=imgsz, device=device_opt)
-            annotated_frame = results[0].plot()
-            
-            # Dibujar los FPS sobre la imagen solo si se solicita
-            if show_fps:
-                cv2.putText(annotated_frame, f"FPS: {render_fps:.1f}", (20, 50), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            annotated_frame = results[0].plot(boxes=False, labels=False, conf=False)
             
             # Inicializamos el contador de tiempo DESPUÉS de analizar el primer frame
             # para que el warmup de YOLO no afecte la sincronización inicial.
@@ -200,6 +201,6 @@ if __name__ == "__main__":
     try:
         # imgsz define tanto la resolución de la cámara como la de la IA
         # Valores recomendados: 320, 640, 1280
-        stream_yolo_gpu(show_fps=True, imgsz=1280)
+        stream_yolo_gpu(imgsz=1280)
     except Exception as e:
         print(f"\n[ERROR] Ocurrió un problema: {e}")
