@@ -75,8 +75,9 @@ def stream_yolo_gpu(imgsz=640):
     # Desactivar autoenfoque (0 = Apagado, 1 = Encendido)
     cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
     # Establecer enfoque manual (El valor depende de la cámara, puede requerir ajuste)
-    # Valores comunes suelen estar entre 0 (infinito o macro) y 255.
-    cap.set(cv2.CAP_PROP_FOCUS, 25)
+    # Establecer enfoque manual base
+    current_focus = 10
+    cap.set(cv2.CAP_PROP_FOCUS, current_focus)
 
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
@@ -94,7 +95,8 @@ def stream_yolo_gpu(imgsz=640):
     print("\n--- CONFIGURACIÓN ---")
     print("1. Se abrirá la ventana de video de inmediato.")
     print(f"2. El video se guardará en '{video_path}'.")
-    print("3. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.\n")
+    print("3. Para cambiar el enfoque en vivo: Pulsa 'w' (subir) o 's' (bajar) en la ventana.")
+    print("4. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.\n")
 
     # Configuración del VideoWriter usando la resolución real
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -169,8 +171,18 @@ def stream_yolo_gpu(imgsz=640):
                 out.write(annotated_frame)
                 frames_written += 1
             
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
                 break
+            elif key == ord('w'):
+                current_focus += 5
+                threaded_cap.cap.set(cv2.CAP_PROP_FOCUS, current_focus)
+                print(f"[ENFOQUE] Aumentado a: {current_focus}")
+            elif key == ord('s'):
+                current_focus -= 5
+                if current_focus < 0: current_focus = 0
+                threaded_cap.cap.set(cv2.CAP_PROP_FOCUS, current_focus)
+                print(f"[ENFOQUE] Disminuido a: {current_focus}")
 
     except KeyboardInterrupt:
         print("\n[INFO] Detención por terminal detectada.")
