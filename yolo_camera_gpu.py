@@ -79,6 +79,12 @@ def stream_yolo_gpu(imgsz=640):
     current_focus = 10
     cap.set(cv2.CAP_PROP_FOCUS, current_focus)
 
+    # Obtener la exposición actual para usarla como base en los controles en vivo
+    current_exposure = cap.get(cv2.CAP_PROP_EXPOSURE) or -5
+    
+    # Obtener el ISO actual para usarlo como base en los controles en vivo
+    current_iso = cap.get(cv2.CAP_PROP_ISO_SPEED) or 100
+
     if not cap.isOpened():
         print("[ERROR] No se pudo acceder a la cámara.")
         return
@@ -95,8 +101,10 @@ def stream_yolo_gpu(imgsz=640):
     print("\n--- CONFIGURACIÓN ---")
     print("1. Se abrirá la ventana de video de inmediato.")
     print(f"2. El video se guardará en '{video_path}'.")
-    print("3. Para cambiar el enfoque en vivo: Pulsa 'w' (subir) o 's' (bajar) en la ventana.")
-    print("4. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.\n")
+    print("3. Enfoque en vivo    : Pulsa 'w' (subir) o 's' (bajar)")
+    print("4. Exposición en vivo : Pulsa 'e' (subir) o 'd' (bajar)")
+    print("5. ISO en vivo        : Pulsa 'r' (subir) o 'f' (bajar)")
+    print("6. Para salir: Pulsa 'q' EN LA VENTANA DE VIDEO o Ctrl+C en la terminal.\n")
 
     # Configuración del VideoWriter usando la resolución real
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -183,6 +191,23 @@ def stream_yolo_gpu(imgsz=640):
                 if current_focus < 0: current_focus = 0
                 threaded_cap.cap.set(cv2.CAP_PROP_FOCUS, current_focus)
                 print(f"[ENFOQUE] Disminuido a: {current_focus}")
+            elif key == ord('e'):
+                current_exposure += 1
+                threaded_cap.cap.set(cv2.CAP_PROP_EXPOSURE, current_exposure)
+                print(f"[EXPOSICIÓN] Aumentada a: {current_exposure}")
+            elif key == ord('d'):
+                current_exposure -= 1
+                threaded_cap.cap.set(cv2.CAP_PROP_EXPOSURE, current_exposure)
+                print(f"[EXPOSICIÓN] Disminuida a: {current_exposure}")
+            elif key == ord('r'):
+                current_iso += 50
+                threaded_cap.cap.set(cv2.CAP_PROP_ISO_SPEED, current_iso)
+                print(f"[ISO] Aumentado a: {current_iso}")
+            elif key == ord('f'):
+                current_iso -= 50
+                if current_iso < 0: current_iso = 0
+                threaded_cap.cap.set(cv2.CAP_PROP_ISO_SPEED, current_iso)
+                print(f"[ISO] Disminuido a: {current_iso}")
 
     except KeyboardInterrupt:
         print("\n[INFO] Detención por terminal detectada.")
